@@ -12,7 +12,7 @@ class Photobooth
       @root.height = 480
       @canvas = TkCanvas.new @root
       @canvas.pack :fill => "both", :expand => "yes"
-      @canvas.bind(:Configure){|e| @canvas.width = e.width; @canvas.height = e.height}
+      @canvas.bind(:Configure){|e| @canvas.width = e.width; @canvas.height = e.height; @canvas.delete "all"}
     end
 
     def show_img img
