@@ -5,7 +5,7 @@ require 'thread'
 
 class Photobooth
   COUNTDOWN = 5
-  COUNTDOWN_SHORT = 1
+  COUNTDOWN_SHORT = 0.7
 
   def initialize
     Thread.abort_on_exception
@@ -32,15 +32,20 @@ class Photobooth
 
   def take_imges
     images = []
-    images << take_img(COUNTDOWN)
+    COUNTDOWN.times do |i|
+      @ui.display_text (COUNTDOWN - i)
+      sleep 1
+    end
+    @ui.clear_text
+    images << take_img
     @ui.show_img_grid images[0], 0
     3.times do |i|
-      images << take_img(COUNTDOWN_SHORT)
+      images << take_img
       @uilock.synchronize do
         @ui.show_img_grid images[-1], i + 1
       end
+      sleep COUNTDOWN_SHORT
     end
-    @ui.clear_text
     images.each do |img|
       img.save
     end
@@ -49,12 +54,7 @@ class Photobooth
     @ignore_btn = false
   end
 
-  def take_img cntdn
-    cntdn.times do |i|
-      @ui.display_text (cntdn - i)
-      sleep 1
-    end
-    @ui.display_text "0"
+  def take_img
     @uilock.synchronize do
       @ui.flash
       @camera.capture
