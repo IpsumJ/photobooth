@@ -79,7 +79,7 @@ class Photobooth
       tkimg = TkPhotoImage.new :data => data
       tkcimg = TkcImage.new @canvas, *pos[n], :anchor => :center, :image => tkimg
 
-      @image_grid << tkcimg
+      @image_grid << tkcimg << tkimg
     end
 
     def clear_img_grid
