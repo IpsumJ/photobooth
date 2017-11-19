@@ -8,7 +8,7 @@ class Photobooth
     end
 
     def save
-      raise NotImplementedError
+      $stderr.puts "Save not implemented"
     end
 
     def resized x, y
