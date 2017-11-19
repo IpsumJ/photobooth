@@ -12,7 +12,11 @@ class Photobooth
       @root.height = 480
       @canvas = TkCanvas.new @root
       @canvas.pack :fill => "both", :expand => "yes"
-      @canvas.bind(:Configure){|e| @canvas.width = e.width; @canvas.height = e.height}
+      @canvas.bind(:Configure) do |e|
+        @canvas.width = e.width
+        @canvas.height = e.height
+        @image.coords = [e.width / 2, e.height / 2] if @image
+      end
       @canvas.bind("Button-1"){click_handler}
       @onclick = []
       @text = nil
@@ -33,10 +37,11 @@ class Photobooth
 
     def display_text txt
       clear_text if @text
-      @text = TkcText.new @canvas, 0, 0,
-        :anchor => :nw,
+      fontsize = (@canvas.height * 0.15).to_i
+      @text = TkcText.new @canvas, (fontsize * 0.8).to_i, (fontsize * 0.8).to_i,
+        :anchor => :center,
         :text => txt,
-        :font => ["Sans", 25]
+        :font => ["Sans", fontsize]
       @text.raise
     end
 
@@ -47,27 +52,32 @@ class Photobooth
 
     def flash
       white = TkcRectangle.new @canvas, 0, 0, @canvas.width, @canvas.height, :fill => "White"
-      white.raise
       sleep 0.1
       white.delete
     end
 
     def show_img img
       data = Base64.encode64(img.resized(@canvas.width, @canvas.height))
-      tkimg = TkPhotoImage.new :data => data
+      old_img = @tkimg
+      @tkimg = TkPhotoImage.new :data => data
       if @image.nil?
-        @image = TkcImage.new @canvas, 0, 0, :anchor => :nw, :image => tkimg
+        @image = TkcImage.new @canvas, @canvas.width / 2, @canvas.height / 2,
+          :anchor => :center, :image => @tkimg
       else
-        @image[:image] = tkimg
+        @image[:image] = @tkimg
       end
+      old_img.delete if old_img
     end
 
     def show_img_grid img, n
-      pos = [[0, 0], [@canvas.width / 2, 0], [0, @canvas.height / 2], [@canvas.width / 2, @canvas.height / 2]]
+      pos = [[(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 1.0 / 4).to_i],
+             [(@canvas.width * 3.0 / 4).to_i, (@canvas.height * 1.0 / 4).to_i],
+             [(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i],
+             [(@canvas.width * 3.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i]]
       w, h = @canvas.width / 2, @canvas.height / 2
-      data = Base64.encode64(img.resized(w, h))
+      data = Base64.encode64(img.resized(w * 0.99, h * 0.99))
       tkimg = TkPhotoImage.new :data => data
-      tkcimg = TkcImage.new @canvas, *pos[n], :anchor => :nw, :image => tkimg
+      tkcimg = TkcImage.new @canvas, *pos[n], :anchor => :center, :image => tkimg
 
       @image_grid << tkcimg
     end

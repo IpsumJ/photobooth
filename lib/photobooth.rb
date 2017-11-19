@@ -40,11 +40,11 @@ class Photobooth
     images << take_img
     @ui.show_img_grid images[0], 0
     3.times do |i|
+      sleep COUNTDOWN_SHORT
       images << take_img
       @uilock.synchronize do
         @ui.show_img_grid images[-1], i + 1
       end
-      sleep COUNTDOWN_SHORT
     end
     images.each do |img|
       img.save
