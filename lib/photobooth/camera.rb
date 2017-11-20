@@ -1,31 +1,14 @@
 require 'gphoto2'
 require 'photobooth/image'
+require 'photobooth/camera/dummy'
+require 'photobooth/camera/mdummy'
 
 class Photobooth
   class Camera
-    class DummyCamera
-      PREVIEW = "preview.jpg"
-      CAPTURE = "capture.jpg"
-
-      def capture_preview
-        Image.new(File.read PREVIEW)
-      end
-
-      def capture
-        Image.new(File.read CAPTURE)
-      end
-
-      def model
-        "Dummy"
-      end
-
-      def close
-      end
-    end
-
     def self.find
       cams  = GPhoto2::Camera.all.map{|c| new c}
-      cams.push DummyCamera.new
+      cams.push Dummy.new
+      cams.push MDummy.new
     end
     class << self
       private :new
