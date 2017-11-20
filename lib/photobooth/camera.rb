@@ -27,6 +27,10 @@ class Photobooth
       Image.new @cam.capture.data
     end
 
+    def model
+      @cam.model
+    end
+
     def close
       @cam.close
     end

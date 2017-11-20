@@ -12,12 +12,13 @@ class Photobooth
     def index
       if @@index.nil?
         images = []
-        Dir.open.Config[:output_dir].each do |file|
-          m = /^\d{4}-\d{2}-\d{2}_(\d{4}).jpg$/
+        Dir.open(Config[:output_dir]).each do |file|
+          m = /^\d{4}-\d{2}-\d{2}_(\d{4}).jpg$/.match(file)
           images << m[1].to_i if m
         end
         images.sort!
-        @@index = images[-1]
+        @@index = images.size <= 0 ? 0 : images[-1]
+        index
       else
         @@index += 1
       end
@@ -25,9 +26,8 @@ class Photobooth
     private :index
 
     def save
-      $stderr.puts "Save not implemented"
-      path = File.join(Config[:output_dir], "#{Time.now.strftime "%f"}_#{index})
-      puts "Saving to #{Config[:output_dir]}"
+      path = File.join(Config[:output_dir], "%s_%04d.jpg" % [Time.now.strftime("%F"), index])
+      File.write(path, @raw)
     end
 
     def resized x, y
