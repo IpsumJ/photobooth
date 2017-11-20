@@ -1,4 +1,5 @@
 require 'gphoto2'
+require 'photobooth/config'
 require 'photobooth/image'
 require 'photobooth/camera/dummy'
 require 'photobooth/camera/mdummy'

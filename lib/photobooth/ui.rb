@@ -2,6 +2,7 @@ require 'tk'
 require 'tk/canvasfix'
 require 'tkextlib/tkimg'
 require 'base64'
+require 'photobooth/config'
 
 class Photobooth
   class UI
@@ -10,7 +11,7 @@ class Photobooth
       @root.title = "Photobooth"
       @root.width = 640
       @root.height = 480
-      @canvas = TkCanvas.new @root, :background => "black", :highlightthickness => 0
+      @canvas = TkCanvas.new @root, :background => Config[:background], :highlightthickness => 0
       @canvas.pack :fill => "both", :expand => "yes"
       @canvas.bind(:Configure) do |e|
         @canvas.width = e.width
@@ -37,12 +38,12 @@ class Photobooth
 
     def display_text txt
       clear_text if @text
-      fontsize = (@canvas.height * 0.15).to_i
+      fontsize = (@canvas.height * Config[:font_size].to_f).to_i
       @text = TkcText.new @canvas, (fontsize * 0.8).to_i, (fontsize * 0.8).to_i,
         :anchor => :center,
         :text => txt,
-        :font => ["Sans", fontsize],
-        :fill => "red"
+        :font => [Config[:font], fontsize],
+        :fill => Config[:text_color]
       @text.raise
     end
 
@@ -52,8 +53,10 @@ class Photobooth
     end
 
     def flash
-      white = TkcRectangle.new @canvas, 0, 0, @canvas.width, @canvas.height, :fill => "White"
-      sleep 0.1
+      delay = Config[:flash_time].to_f
+      return if delay == 0
+      white = TkcRectangle.new @canvas, 0, 0, @canvas.width, @canvas.height, :fill => Config[:flash_color]
+      sleep delay
       white.delete
     end
 

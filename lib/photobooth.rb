@@ -1,17 +1,15 @@
 require 'photobooth/ui'
 require 'photobooth/image'
 require 'photobooth/camera'
+require 'photobooth/config'
 require 'thread'
 
 class Photobooth
-  COUNTDOWN = 5
-  COUNTDOWN_SHORT = 0.7
-
-  def initialize args
+  def initialize
     Thread.abort_on_exception
     cams = Camera.find
-    if args[0] == "--first"
-      @camera = cams[0]
+    if Config[:auto_camera]
+      @camera = cams[Config[:auto_camera].to_i]
     else
       cams.each_with_index do |c, i|
         puts "%i %s" % [i, c.model]
@@ -40,15 +38,15 @@ class Photobooth
 
   def take_imges
     images = []
-    COUNTDOWN.times do |i|
-      @ui.display_text (COUNTDOWN - i)
+    Config[:countdown].to_i.times do |i|
+      @ui.display_text (Config[:countdown].to_i - i)
       sleep 1
     end
     @ui.clear_text
     images << take_img
     @ui.show_img_grid images[0], 0
     3.times do |i|
-      sleep COUNTDOWN_SHORT
+      sleep Config[:image_delay].to_f
       images << take_img
       @uilock.synchronize do
         @ui.show_img_grid images[-1], i + 1
@@ -57,7 +55,7 @@ class Photobooth
     images.each do |img|
       img.save
     end
-    sleep 2
+    sleep Config[:review_time]
     @ui.clear_img_grid
     @ignore_btn = false
   end
@@ -72,7 +70,7 @@ class Photobooth
   def mainloop
     x = Thread.new do
       loop do
-        sleep 1/30.0
+        sleep 1 / Config[:preview_fps].to_f
         @uilock.synchronize do
           img = @camera.capture_preview
           @ui.show_img img
