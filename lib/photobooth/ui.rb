@@ -10,7 +10,7 @@ class Photobooth
       @root.title = "Photobooth"
       @root.width = 640
       @root.height = 480
-      @canvas = TkCanvas.new @root
+      @canvas = TkCanvas.new @root, :background => "black", :highlightthickness => 0
       @canvas.pack :fill => "both", :expand => "yes"
       @canvas.bind(:Configure) do |e|
         @canvas.width = e.width
@@ -41,7 +41,8 @@ class Photobooth
       @text = TkcText.new @canvas, (fontsize * 0.8).to_i, (fontsize * 0.8).to_i,
         :anchor => :center,
         :text => txt,
-        :font => ["Sans", fontsize]
+        :font => ["Sans", fontsize],
+        :fill => "red"
       @text.raise
     end
 
