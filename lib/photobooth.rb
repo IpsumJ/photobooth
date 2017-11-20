@@ -7,11 +7,19 @@ class Photobooth
   COUNTDOWN = 5
   COUNTDOWN_SHORT = 0.7
 
-  def initialize
+  def initialize args
     Thread.abort_on_exception
     cams = Camera.find
-    p cams
-    @camera = cams[0]
+    if args[0] == "--first"
+      @camera = cams[0]
+    else
+      cams.each_with_index do |c, i|
+        puts "%i %s" % [i, c.model]
+      end
+      print "Choose camera: "
+      i = gets.to_i
+      @camera = cams[i]
+    end
 
     @uilock = Mutex.new
     @ui = UI.new
