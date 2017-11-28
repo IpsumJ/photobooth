@@ -2,7 +2,6 @@
 
 $:.unshift(File.expand_path("lib"))
 
-require 'photobooth'
 require 'photobooth/config'
 
 if ARGV[0]
@@ -27,4 +26,8 @@ def upload_file file
   p pr
 end
 
-upload_file("capture.jpg")
+Dir.open(Photobooth::Config[:output_dir]).each do |file|
+  if /^\d{4}-\d{2}-\d{2}_\d{4}.jpg$/ =~ file
+    p file
+  end
+end
