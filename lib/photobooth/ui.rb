@@ -1,7 +1,6 @@
 require 'tk'
 require 'tk/canvasfix'
 require 'tkextlib/tkimg'
-require 'base64'
 require 'photobooth/config'
 
 class Photobooth
@@ -21,7 +20,9 @@ class Photobooth
       @canvas.bind("Button-1"){click_handler}
       @onclick = []
       @text = nil
-      @image = nil
+      @tkphoto = TkPhotoImage.new
+      @image = TkcImage.new @canvas, @canvas.width / 2, @canvas.height / 2,
+        :anchor => :center, :image => @tkphoto
       @image_grid = []
     end
 
@@ -61,16 +62,14 @@ class Photobooth
     end
 
     def show_img img
-      data = Base64.encode64(img.resized(@canvas.width, @canvas.height))
-      old_img = @tkimg
-      @tkimg = TkPhotoImage.new :data => data
-      if @image.nil?
-        @image = TkcImage.new @canvas, @canvas.width / 2, @canvas.height / 2,
-          :anchor => :center, :image => @tkimg
-      else
-        @image[:image] = @tkimg
-      end
-      old_img.delete if old_img
+      #s = Time.now
+      data = img.resized(@canvas.width, @canvas.height)
+      #e = Time.now
+      #puts "r: #{e - s}"
+      #s = Time.now
+      @tkphoto[:data] = data
+      #e = Time.now
+      #puts "d: #{e - s}"
     end
 
     def show_img_grid img, n
@@ -79,7 +78,7 @@ class Photobooth
              [(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i],
              [(@canvas.width * 3.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i]]
       w, h = @canvas.width / 2, @canvas.height / 2
-      data = Base64.encode64(img.resized(w * 0.99, h * 0.99))
+      data = img.resized(w * 0.99, h * 0.99)
       tkimg = TkPhotoImage.new :data => data
       tkcimg = TkcImage.new @canvas, *pos[n], :anchor => :center, :image => tkimg
 
