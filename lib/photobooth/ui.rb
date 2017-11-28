@@ -1,30 +1,42 @@
-require 'tk'
-require 'tk/canvasfix'
-require 'tkextlib/tkimg'
+require 'sdl'
 require 'photobooth/config'
 
 class Photobooth
   class UI
     def initialize
-      @root = TkRoot.new
-      @root.title = "Photobooth"
-      @root.width = 640
-      @root.height = 480
-      @canvas = TkCanvas.new @root, :background => Config[:background], :highlightthickness => 0
-      @canvas.pack :fill => "both", :expand => "yes"
-      @canvas.bind(:Configure) do |e|
-        @canvas.width = e.width
-        @canvas.height = e.height
-        @image.coords = [e.width / 2, e.height / 2] if @image
-      end
-      @canvas.bind("Button-1"){click_handler}
+      SDL.init SDL::INIT_VIDEO
+      @w, @h = 640, 480
+      open_screen
+
+      @clr_bg = @screen.format.mapRGB *Config[:background]
+      @clr_txt = @screen.format.mapRGB *Config[:text_color]
+
       @onclick = []
       @text = nil
-      @tkphoto = TkPhotoImage.new
-      @image = TkcImage.new @canvas, @canvas.width / 2, @canvas.height / 2,
-        :anchor => :center, :image => @tkphoto
       @image_grid = []
     end
+
+    def run
+      running = true
+      while running
+        e = SDL::Event.wait
+        case e
+        when SDL::Event::Quit
+          running = false
+        when SDL::Event::VideoResize
+          @w = e.w
+          @h = e.h
+          open_screen
+        when SDL::Event::MouseButtonDown
+          click_handler
+        end
+      end
+    end
+
+    def open_screen
+      @screen = SDL::Screen.open @w, @h, 0, SDL::SWSURFACE | SDL::RESIZABLE
+    end
+    private :open_screen
 
     def click_handler
       @onclick.each do |b|
@@ -38,6 +50,8 @@ class Photobooth
     end
 
     def display_text txt
+      puts "Displaying #{txt}"
+      return
       clear_text if @text
       fontsize = (@canvas.height * Config[:font_size].to_f).to_i
       @text = TkcText.new @canvas, (fontsize * 0.8).to_i, (fontsize * 0.8).to_i,
@@ -49,11 +63,13 @@ class Photobooth
     end
 
     def clear_text
+      return
       @text.delete
       @text = nil
     end
 
     def flash
+      return
       delay = Config[:flash_time].to_f
       return if delay == 0
       white = TkcRectangle.new @canvas, 0, 0, @canvas.width, @canvas.height, :fill => Config[:flash_color]
@@ -62,17 +78,23 @@ class Photobooth
     end
 
     def show_img img
-      #s = Time.now
-      data = img.resized(@canvas.width, @canvas.height)
-      #e = Time.now
-      #puts "r: #{e - s}"
-      #s = Time.now
-      @tkphoto[:data] = data
-      #e = Time.now
-      #puts "d: #{e - s}"
+      srf = SDL::Surface.loadFromIO img.io
+
+      scl_x = @w.to_f / srf.w
+      scl_y = @h.to_f / srf.h
+      scl = scl_x < scl_y ? scl_x : scl_y
+
+      x = (@w - srf.w * scl) / 2.0
+      y = (@h - srf.h * scl) / 2.0
+
+      @screen.fill_rect 0, 0, @w, @h, @clr_bg
+      SDL::Surface.transform_draw srf, @screen, 0, scl, scl, 0, 0, x, y, 0
+      @screen.flip
+      srf.destroy
     end
 
     def show_img_grid img, n
+      return
       pos = [[(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 1.0 / 4).to_i],
              [(@canvas.width * 3.0 / 4).to_i, (@canvas.height * 1.0 / 4).to_i],
              [(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i],
@@ -86,12 +108,9 @@ class Photobooth
     end
 
     def clear_img_grid
+      return
       @image_grid.each{|i| i.delete}
       @image_grid = []
-    end
-
-    def run
-      Tk.mainloop
     end
   end
 end

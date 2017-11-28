@@ -8,10 +8,10 @@
     "review_time" : 2,
     "preview_fps" : 30,
     "output_dir" : "/tmp/foo",
-    "background" : "black",
+    "background" : [0, 0, 0],
     "font" : "Sans",
     "font_size" : 0.15,
-    "text_color" : "red",
-    "flash_color" : "white",
+    "text_color" : [255, 0, 0],
+    "flash_color" : [255, 255, 255],
     "flash_time" : 0.1
 }
