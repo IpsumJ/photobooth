@@ -3,17 +3,22 @@ require 'photobooth/config'
 
 class Photobooth
   class UI
-    def initialize
+    def initialize notify_exit
       SDL.init SDL::INIT_VIDEO
+      SDL::TTF.init
       @w, @h = 640, 480
       open_screen
 
       @clr_bg = @screen.format.mapRGB *Config[:background]
       @clr_txt = @screen.format.mapRGB *Config[:text_color]
+      @clr_flash = @screen.format.mapRGB *Config[:flash_color]
 
-      @onclick = []
       @text = nil
+
+      @exit = notify_exit
+      @onclick = []
       @image_grid = []
+      @lock = Mutex.new
     end
 
     def run
@@ -22,19 +27,30 @@ class Photobooth
         e = SDL::Event.wait
         case e
         when SDL::Event::Quit
+          @exit.quit
           running = false
         when SDL::Event::VideoResize
           @w = e.w
           @h = e.h
           open_screen
+          clear_screen
         when SDL::Event::MouseButtonDown
           click_handler
         end
       end
     end
 
+    def clear_screen
+      @screen.fill_rect 0, 0, @w, @h, @clr_bg
+    end
+    private :clear_screen
+
     def open_screen
       @screen = SDL::Screen.open @w, @h, 0, SDL::SWSURFACE | SDL::RESIZABLE
+      @font.close if @font
+      @font = SDL::TTF.open(Config[:font], (@h * Config[:font_size]).to_i)
+      @font.style = SDL::TTF::STYLE_NORMAL
+      @font.hinting = SDL::TTF::HINTING_NORMAL
     end
     private :open_screen
 
@@ -50,31 +66,36 @@ class Photobooth
     end
 
     def display_text txt
-      puts "Displaying #{txt}"
-      return
       clear_text if @text
-      fontsize = (@canvas.height * Config[:font_size].to_f).to_i
-      @text = TkcText.new @canvas, (fontsize * 0.8).to_i, (fontsize * 0.8).to_i,
-        :anchor => :center,
-        :text => txt,
-        :font => [Config[:font], fontsize],
-        :fill => Config[:text_color]
-      @text.raise
+      @text = txt.to_s
+      @lock.synchronize do
+        draw_text
+      end
     end
 
+    def draw_text
+      return unless @text
+      @font.draw_solid_utf8(@screen, @text, 0, 0, *Config[:text_color])
+    end
+    private :draw_text
+
     def clear_text
-      return
-      @text.delete
-      @text = nil
+      @lock.synchronize do
+        @text = nil
+        clear_screen
+      end
     end
 
     def flash
-      return
       delay = Config[:flash_time].to_f
       return if delay == 0
-      white = TkcRectangle.new @canvas, 0, 0, @canvas.width, @canvas.height, :fill => Config[:flash_color]
-      sleep delay
-      white.delete
+      @lock.synchronize do
+        @screen.fill_rect 0, 0, @w, @h, @clr_flash
+        @screen.flip
+        sleep delay
+        clear_screen
+        @screen.flip
+      end
     end
 
     def show_img img
@@ -84,33 +105,45 @@ class Photobooth
       scl_y = @h.to_f / srf.h
       scl = scl_x < scl_y ? scl_x : scl_y
 
-      x = (@w - srf.w * scl) / 2.0
-      y = (@h - srf.h * scl) / 2.0
-
-      @screen.fill_rect 0, 0, @w, @h, @clr_bg
-      SDL::Surface.transform_draw srf, @screen, 0, scl, scl, 0, 0, x, y, 0
-      @screen.flip
+      @lock.synchronize do
+        SDL::Surface.transform_draw srf, @screen, 0, scl, scl, 0, 0, @w/2, @h/2, SDL::Surface::TRANSFORM_TMAP
+        draw_grid
+        draw_text
+        @screen.flip
+      end
       srf.destroy
     end
 
     def show_img_grid img, n
-      return
-      pos = [[(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 1.0 / 4).to_i],
-             [(@canvas.width * 3.0 / 4).to_i, (@canvas.height * 1.0 / 4).to_i],
-             [(@canvas.width * 1.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i],
-             [(@canvas.width * 3.0 / 4).to_i, (@canvas.height * 3.0 / 4).to_i]]
-      w, h = @canvas.width / 2, @canvas.height / 2
-      data = img.resized(w * 0.99, h * 0.99)
-      tkimg = TkPhotoImage.new :data => data
-      tkcimg = TkcImage.new @canvas, *pos[n], :anchor => :center, :image => tkimg
+      srf = SDL::Surface.loadFromIO img.io
 
-      @image_grid << tkcimg << tkimg
+      @image_grid << srf
+      draw_grid
     end
 
+    def draw_grid
+      return if @image_grid.empty?
+      pos = [[(@w * 1.0 / 4).to_i, (@h * 1.0 / 4).to_i],
+             [(@w * 3.0 / 4).to_i, (@h * 1.0 / 4).to_i],
+             [(@w * 1.0 / 4).to_i, (@h * 3.0 / 4).to_i],
+             [(@w * 3.0 / 4).to_i, (@h * 3.0 / 4).to_i]]
+      @image_grid.each_with_index do |srf, i|
+        scl_x = @w.to_f / srf.w
+        scl_y = @h.to_f / srf.h
+        scl = (scl_x < scl_y ? scl_x : scl_y) * 0.99 * 0.5
+
+        SDL::Surface.transform_draw srf, @screen, 0, scl, scl, 0, 0, *pos[i], SDL::Surface::TRANSFORM_TMAP
+      end
+      @screen.flip
+    end
+    private :draw_grid
+
     def clear_img_grid
-      return
-      @image_grid.each{|i| i.delete}
-      @image_grid = []
+      @lock.synchronize do
+        @image_grid.each {|srf| srf.destroy}
+        @image_grid = []
+        clear_screen
+      end
     end
   end
 end

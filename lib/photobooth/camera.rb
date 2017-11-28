@@ -17,14 +17,19 @@ class Photobooth
 
     def initialize gphoto_cam
       @cam = gphoto_cam
+      @lock = Mutex.new
     end
 
     def capture_preview
-      Image.new @cam.preview.data
+      @lock.synchronize do
+        Image.new @cam.preview.data
+      end
     end
 
     def capture
-      Image.new @cam.capture.data
+      @lock.synchronize do
+        Image.new @cam.capture.data
+      end
     end
 
     def model
