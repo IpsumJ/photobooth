@@ -1,4 +1,7 @@
 {
+    "owncloud_url" : "https://cloud.gds1.de/owncloud/remote.php/webdav/photobooth_test",
+    "login_file" : "login",
+
     "auto_camera" : false,
     "countdown" : 5,
     "image_delay" : 0.7,
