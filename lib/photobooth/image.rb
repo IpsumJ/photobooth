@@ -31,6 +31,10 @@ class Photobooth
       File.write(path, @raw)
     end
 
+    def io
+      StringIO.new @raw
+    end
+
     def resized x, y
       rimg = Magick::Image.from_blob(@raw)[0]
 

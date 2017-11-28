@@ -19,8 +19,8 @@ class Photobooth
       @camera = cams[i]
     end
 
-    @uilock = Mutex.new
-    @ui = UI.new
+    @ui = UI.new self
+    @running = true
 
     @ui.register_onclick {btn_press}
     @ignore_btn = false
@@ -48,9 +48,7 @@ class Photobooth
     3.times do |i|
       sleep Config[:image_delay].to_f
       images << take_img
-      @uilock.synchronize do
-        @ui.show_img_grid images[-1], i + 1
-      end
+      @ui.show_img_grid images[-1], i + 1
     end
     images.each do |img|
       img.save
@@ -61,21 +59,26 @@ class Photobooth
   end
 
   def take_img
-    @uilock.synchronize do
-      @ui.flash
-      @camera.capture
-    end
+    @ui.flash
+    @camera.capture
+  end
+
+  def quit
+    @running = false
+    @main_thread.join if @main_thread
   end
 
   def mainloop
-    x = Thread.new do
-      loop do
-        sleep 1 / Config[:preview_fps].to_f
-        @uilock.synchronize do
-          img = @camera.capture_preview
-          @ui.show_img img
-        end
+    @main_thread = Thread.new do
+      time_frame = 1.0 / Config[:preview_fps]
+      t_last_frame = Time.now
+      while @running
+        delay = time_frame - (Time.now - t_last_frame)
+        sleep delay if delay > 0
+        img = @camera.capture_preview
+        @ui.show_img img
       end
-    end.abort_on_exception = true
+    end
+    @main_thread.abort_on_exception = true
   end
 end

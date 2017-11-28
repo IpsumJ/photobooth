@@ -4,14 +4,14 @@
 
     "auto_camera" : false,
     "countdown" : 5,
-    "image_delay" : 0.7,
-    "review_time" : 2,
+    "image_delay" : 2,
+    "review_time" : 5,
     "preview_fps" : 30,
     "output_dir" : "/tmp/foo",
-    "background" : "black",
-    "font" : "Sans",
+    "background" : [0, 0, 0],
+    "font" : "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     "font_size" : 0.15,
-    "text_color" : "red",
-    "flash_color" : "white",
-    "flash_time" : 0.1
+    "text_color" : [255, 0, 0],
+    "flash_color" : [255, 255, 255],
+    "flash_time" : 0
 }
