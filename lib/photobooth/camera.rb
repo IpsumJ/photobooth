@@ -6,10 +6,13 @@ require 'photobooth/camera/mdummy'
 
 class Photobooth
   class Camera
-    def self.find
+    def self.find list_dummies
       cams  = GPhoto2::Camera.all.map{|c| new c}
-      cams.push Dummy.new
-      cams.push MDummy.new
+      if list_dummies
+        cams.push Dummy.new
+        cams.push MDummy.new
+      end
+      cams
     end
     class << self
       private :new

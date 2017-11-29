@@ -1,6 +1,7 @@
 {
     "owncloud_url" : "https://cloud.gds1.de/owncloud/remote.php/webdav/photobooth_test",
     "login_file" : "login",
+    "max_upload_time" : 20,
 
     "auto_camera" : false,
     "countdown" : 5,
@@ -10,7 +11,7 @@
     "output_dir" : "/tmp/foo",
     "background" : [0, 0, 0],
     "font" : "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    "font_size" : 0.15,
+    "font_size" : 0.2,
     "text_color" : [255, 0, 0],
     "flash_color" : [255, 255, 255],
     "flash_time" : 0

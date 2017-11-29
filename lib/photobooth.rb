@@ -7,10 +7,16 @@ require 'thread'
 class Photobooth
   def initialize
     Thread.abort_on_exception
-    cams = Camera.find
     if Config[:auto_camera]
-      @camera = cams[Config[:auto_camera].to_i]
+      cams = Camera.find false
+      if cams.size > Config[:auto_camera].to_i
+        @camera = cams[Config[:auto_camera].to_i]
+      else
+        puts "camera not found"
+        exit
+      end
     else
+      cams = Camera.find true
       cams.each_with_index do |c, i|
         puts "%i %s" % [i, c.model]
       end
