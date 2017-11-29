@@ -132,7 +132,12 @@ class Photobooth
         scl_y = @h.to_f / srf.h
         scl = (scl_x < scl_y ? scl_x : scl_y) * 0.99 * 0.5
 
+        w, h = (srf.w * scl).ceil, (srf.h * scl).ceil
+        x, y = pos[i][0] - w * 0.5, pos[i][1] - h * 0.5
+
         SDL::Surface.transform_draw srf, @screen, 0, scl, scl, 0, 0, *pos[i], SDL::Surface::TRANSFORM_TMAP
+        @screen.draw_rect(x, y, w, h, 0x000000, false)
+        @screen.draw_rect(x + 1, y + 1, w - 2, h - 2, 0xFFFFFF, false)
       end
       @screen.flip
     end
