@@ -2,6 +2,7 @@ require 'photobooth/ui'
 require 'photobooth/image'
 require 'photobooth/camera'
 require 'photobooth/config'
+require 'photobooth/serial'
 require 'thread'
 
 class Photobooth
@@ -25,6 +26,9 @@ class Photobooth
       @camera = cams[i]
     end
 
+    serial = Seril.new Config[:serial_port]
+    serial.register_onclick self
+
     @ui = UI.new self
     @running = true
 
@@ -35,7 +39,7 @@ class Photobooth
     @ui.run
   end
 
-  def btn_press
+  def btn_press btn = :btn1
     if not @ignore_btn
       @ignore_btn = true
       Thread.new {take_imges}.abort_on_exception = true

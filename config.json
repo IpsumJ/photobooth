@@ -3,6 +3,7 @@
     "login_file" : "login",
     "max_upload_time" : 20,
 
+    "serial_port" : "/dev/ttyUSB0",
     "auto_camera" : false,
     "countdown" : 5,
     "image_delay" : 2,
