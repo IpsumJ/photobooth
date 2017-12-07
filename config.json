@@ -1,5 +1,5 @@
 {
-    "owncloud_url" : "https://cloud.gds1.de/owncloud/remote.php/webdav/photobooth_test",
+    "owncloud_url" : "https://cloud.gds1.de/owncloud/remote.php/webdav/fotobox",
     "login_file" : "login",
     "max_upload_time" : 20,
 
