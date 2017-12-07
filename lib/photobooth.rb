@@ -26,8 +26,10 @@ class Photobooth
       @camera = cams[i]
     end
 
-    serial = Seril.new Config[:serial_port]
-    serial.register_onclick self
+    if Config[:serial_port]
+      serial = Seril.new Config[:serial_port]
+      serial.register_onclick self
+    end
 
     @ui = UI.new self
     @running = true
