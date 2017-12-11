@@ -3,6 +3,9 @@
     "login_file" : "login",
     "max_upload_time" : 20,
 
+    "twitter_login" : "twitter_login.json",
+    "twitter_text" : "Testing my photobooth",
+
     "serial_port" : "/dev/ttyUSB0",
     "auto_camera" : false,
     "countdown" : 5,
