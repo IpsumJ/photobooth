@@ -32,10 +32,10 @@ class Photobooth
       File.write(path, @raw)
     end
 
-    def save_and_mark_to_tweete text
+    def save_and_mark_to_tweet text
       idx = index
       save idx
-      path = File.join(Config[:output_dir], "%s_%04d.tweete" % [Time.now.strftime("%F"), idx])
+      path = File.join(Config[:output_dir], "%s_%04d.tweet" % [Time.now.strftime("%F"), idx])
       File.write(path, text)
     end
 

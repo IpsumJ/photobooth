@@ -3,6 +3,7 @@
 $:.unshift(File.expand_path("lib"))
 
 require 'photobooth/config'
+require 'photobooth/twitter'
 
 if ARGV[0]
   Photobooth::Config.load ARGV[0]
@@ -14,6 +15,8 @@ end
 CMD = %w(/usr/bin/curl --user %LOGIN -f -m %TIMEOUT -T %SOURCE %TARGET/%NAME).freeze
 FILE_LIST_NAME = File.join(Photobooth::Config[:output_dir], "uploaded")
 @login = File.read(Photobooth::Config[:login_file]).chomp
+
+@twitter = Photobooth::Twitter.new
 
 def upload_file file, name
   cmd = CMD.map do |v|
@@ -43,8 +46,14 @@ def load_file_list
       files[index] = {
         :name => file,
         :file => File.join(data_dir, file),
-        :uploaded => uploaded.include?(index)
+        :to_upload => !uploaded.include?(index)
       }
+      files[index][:tweet_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweet"))
+      files[index][:tweeted_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweeted"))
+      files[index][:to_tweet] = (
+        !File.exist?(files[index][:tweeted_file]) &&
+        File.exist?(files[index][:tweet_file]))
+
     end
   end
   files
@@ -55,9 +64,15 @@ loop do
   files = load_file_list
 
   files.each do |i, info|
-    next if info[:uploaded]
-    if upload_file info[:file], info[:name]
-      File.write(FILE_LIST_NAME, "#{i}\n", mode: "a")
+    if info[:to_tweet]
+      if tweet = @twitter.tweet(File.read(info[:tweet_file]), img: info[:file])
+        File.write info[:tweeted_file], tweet
+      end
+    end
+    if info[:to_upload]
+      if upload_file info[:file], info[:name]
+        File.write(FILE_LIST_NAME, "#{i}\n", mode: "a")
+      end
     end
   end
 

@@ -14,26 +14,26 @@ class Photobooth
       end
     end
 
-    def tweete text, img: nil
-      tweete = nil
+    def tweet text, img: nil
+      tweet = nil
       begin
       if img.nil?
-        tweete = @client.update text
+        tweet = @client.update text
       else
         File.open(img) do |i|
-          tweete = @client.update_with_media text, i
+          tweet = @client.update_with_media text, i
         end
       end
       rescue RuntimeError => e
         p e
       end
-      tweete.nil? ? nil : tweete.url.to_s
+      tweet.nil? ? nil : tweet.url.to_s
     end
   end
 end
 
 if __FILE__ == $0
   x = Photobooth::Twitter.new
-  #p x.tweete "Hello world! 3 with image #test", img: '../../capture.jpg'
-  p x.tweete "Hello world! from config"
+  #p x.tweet "Hello world! 3 with image #test", img: '../../capture.jpg'
+  p x.tweet "Hello world! from config"
 end

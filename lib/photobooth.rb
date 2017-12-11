@@ -66,7 +66,7 @@ class Photobooth
     @no_preview = true
     image = take_img
     @ui.show_img image
-    image.save_and_mark_to_tweete Config[:twitter_text]
+    image.save_and_mark_to_tweet Config[:twitter_text]
     sleep Config[:review_time]
     @no_preview = false
   end
