@@ -2,7 +2,7 @@ require 'serialport'
 
 class Photobooth
   class Seril
-    BUTTONS = {:cts => :btn1, :dsr => :btn2}
+    BUTTONS = {:cts => :btn0, :dsr => :btn1}
 
     def initialize port
       @port = SerialPort.new port

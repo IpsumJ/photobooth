@@ -26,9 +26,17 @@ class Photobooth
     end
     private :index
 
-    def save
-      path = File.join(Config[:output_dir], "%s_%04d.jpg" % [Time.now.strftime("%F"), index])
+    def save idx = nil
+      idx = index unless idx
+      path = File.join(Config[:output_dir], "%s_%04d.jpg" % [Time.now.strftime("%F"), idx])
       File.write(path, @raw)
+    end
+
+    def save_and_mark_to_tweete text
+      idx = index
+      save idx
+      path = File.join(Config[:output_dir], "%s_%04d.tweete" % [Time.now.strftime("%F"), idx])
+      File.write(path, text)
     end
 
     def io

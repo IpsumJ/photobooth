@@ -35,7 +35,8 @@ class Photobooth
           open_screen
           clear_screen
         when SDL::Event::MouseButtonDown
-          click_handler
+          btn = [nil, :btn0, nil, :btn1][e.button]
+          click_handler btn if btn
         end
       end
     end
@@ -54,9 +55,9 @@ class Photobooth
     end
     private :open_screen
 
-    def click_handler
+    def click_handler ev
       @onclick.each do |b|
-        b.call
+        b.call ev
       end
     end
     private :click_handler

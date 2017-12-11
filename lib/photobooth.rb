@@ -33,19 +33,42 @@ class Photobooth
 
     @ui = UI.new self
     @running = true
+    @no_preview = false
 
-    @ui.register_onclick {btn_press}
+    @ui.register_onclick {|e| btn_press e}
     @ignore_btn = false
 
     mainloop
     @ui.run
   end
 
-  def btn_press btn = :btn1
+  def btn_press btn = :btn0
     if not @ignore_btn
       @ignore_btn = true
-      Thread.new {take_imges}.abort_on_exception = true
+      Thread.new do
+        case btn
+        when :btn0
+          take_imges
+        when :btn1
+          take_image_and_twitter
+        end
+        @ignore_btn = false
+      end
     end
+  end
+
+  def take_image_and_twitter
+    Config[:countdown].to_i.times do |i|
+      @ui.display_text (Config[:countdown].to_i - i)
+      sleep 1
+    end
+    @ui.clear_text
+    @no_preview = true
+    image = take_img
+    @ui.show_img image
+    image.save_and_mark_to_tweete Config[:twitter_text]
+    sleep Config[:review_time]
+    @no_preview = false
   end
 
   def take_imges
@@ -67,7 +90,6 @@ class Photobooth
     end
     sleep Config[:review_time]
     @ui.clear_img_grid
-    @ignore_btn = false
   end
 
   def take_img
@@ -87,8 +109,11 @@ class Photobooth
       while @running
         delay = time_frame - (Time.now - t_last_frame)
         sleep delay if delay > 0
-        img = @camera.capture_preview
-        @ui.show_img img
+        unless @no_preview
+          img = @camera.capture_preview
+          @ui.show_img img
+        end
+        t_last_frame = Time.now
       end
     end
     @main_thread.abort_on_exception = true
