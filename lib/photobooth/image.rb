@@ -30,13 +30,19 @@ class Photobooth
       idx = index unless idx
       path = File.join(Config[:output_dir], "%s_%04d.jpg" % [Time.now.strftime("%F"), idx])
       File.write(path, @raw)
+      pr = Process.spawn 'exiftool', '-overwrite_original', '-all=', path
+      Process.wait pr
     end
 
     def save_and_mark_to_tweet text
       idx = index
-      save idx
+      spath = File.join(Config[:output_dir], "%s_%04d_small.jpg" % [Time.now.strftime("%F"), idx])
+      File.write(spath, resized(1280, 1080))
       path = File.join(Config[:output_dir], "%s_%04d.tweet" % [Time.now.strftime("%F"), idx])
       File.write(path, text)
+      pr = Process.spawn 'exiftool', '-overwrite_original', '-all=', spath
+      Process.wait pr
+      save idx
     end
 
     def io

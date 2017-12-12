@@ -60,6 +60,7 @@ def load_file_list
         :to_upload => !uploaded.include?(index)
       }
       files[index][:tweet_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweet"))
+      files[index][:small_file] = File.join(data_dir, file.sub(/\.jpg$/, "_small.jpg"))
       files[index][:tweeted_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweeted"))
       files[index][:instagramed_file] = File.join(data_dir, file.sub(/\.jpg$/, ".instagramed"))
       files[index][:to_tweet] = (
@@ -79,19 +80,31 @@ loop do
 
   files.each do |i, info|
     if info[:to_tweet]
-      if tweet = @twitter.tweet(File.read(info[:tweet_file]), img: info[:file])
+      puts "Uploading #{i} to twitter"
+      if tweet = @twitter.tweet(File.read(info[:tweet_file]), img: info[:small_file])
         File.write info[:tweeted_file], tweet
+      else
+        puts 'error while uploading'
       end
+      puts "Uploading #{i} to twitter done"
     end
     if info[:to_instagram]
-      if instagram(info[:file], File.read(info[:tweet_file]))
+      puts "Uploading #{i} to instagram"
+      if instagram(info[:small_file], File.read(info[:tweet_file]))
         File.write info[:instagramed_file], tweet
+      else
+        puts 'error while uploading'
       end
+      puts "Uploading #{i} to instagram done"
     end
     if info[:to_upload]
+      puts "Uploading #{i} to owncloud"
       if upload_file info[:file], info[:name]
         File.write(FILE_LIST_NAME, "#{i}\n", mode: "a")
+      else
+        puts 'error while uploading'
       end
+      puts "Uploading #{i} to owncloud done"
     end
   end
 
