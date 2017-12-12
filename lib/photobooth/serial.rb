@@ -2,7 +2,7 @@ require 'serialport'
 
 class Photobooth
   class Seril
-    BUTTONS = {:cts => :btn0, :dsr => :btn1}
+    BUTTONS = {:cts => :btn1, :dsr => :btn0}
 
     def initialize port
       @port = SerialPort.new port
@@ -34,7 +34,7 @@ class Photobooth
           @clicks.uniq!
           if e = @clicks.pop
             @onclick.each do |cb|
-              cb.btn_press BUTTONS[:e]
+              cb.btn_press BUTTONS[e]
             end
           end
           sleep 0.01
