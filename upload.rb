@@ -31,6 +31,17 @@ def upload_file file, name
   $?.exitstatus == 0
 end
 
+INSTAGRAM_CMD = %w(./instagram_cr.rb %SOURCE %CAPTION).freeze
+def instagram file, caption
+  cmd = INSTAGRAM_CMD.map do |v|
+    v.gsub("%SOURCE", file)
+      .gsub("%CAPTION", caption)
+  end
+  pr = Process.spawn *cmd
+  Process.wait pr
+  $?.exitstatus == 0
+end
+
 def load_file_list
   files = {}
   uploaded = []
@@ -50,10 +61,13 @@ def load_file_list
       }
       files[index][:tweet_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweet"))
       files[index][:tweeted_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweeted"))
+      files[index][:instagramed_file] = File.join(data_dir, file.sub(/\.jpg$/, ".instagramed"))
       files[index][:to_tweet] = (
         !File.exist?(files[index][:tweeted_file]) &&
         File.exist?(files[index][:tweet_file]))
-
+      files[index][:to_instagram] = (
+        !File.exist?(files[index][:instagramed_file]) &&
+        File.exist?(files[index][:tweet_file]))
     end
   end
   files
@@ -67,6 +81,11 @@ loop do
     if info[:to_tweet]
       if tweet = @twitter.tweet(File.read(info[:tweet_file]), img: info[:file])
         File.write info[:tweeted_file], tweet
+      end
+    end
+    if info[:to_instagram]
+      if instagram(info[:file], File.read(info[:tweet_file]))
+        File.write info[:instagramed_file], tweet
       end
     end
     if info[:to_upload]
