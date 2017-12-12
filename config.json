@@ -4,7 +4,12 @@
     "max_upload_time" : 20,
 
     "twitter_login" : "twitter_login.json",
-    "twitter_text" : "Testing my photobooth",
+    "twitter_text" : [
+        "#fete #tgsindelfingen #gds1",
+        "von der Fotobox auf der #tgfete",
+        "#160JahreGDS #48JahreTG",
+        "#Kokoš"
+    ],
 
     "serial_port" : "/dev/ttyUSB0",
     "auto_camera" : false,

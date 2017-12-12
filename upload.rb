@@ -81,7 +81,9 @@ loop do
   files.each do |i, info|
     if info[:to_tweet]
       puts "Uploading #{i} to twitter"
-      if tweet = @twitter.tweet(File.read(info[:tweet_file]), img: info[:small_file])
+      text = File.read info[:tweet_file]
+      puts "with text #{text}"
+      if tweet = @twitter.tweet(text, img: info[:small_file])
         File.write info[:tweeted_file], tweet
       else
         puts 'error while uploading'
@@ -90,7 +92,9 @@ loop do
     end
     if info[:to_instagram]
       puts "Uploading #{i} to instagram"
-      if instagram(info[:small_file], File.read(info[:tweet_file]))
+      text = File.read info[:tweet_file]
+      puts "with text #{text}"
+      if instagram(info[:small_file], text)
         File.write info[:instagramed_file], tweet
       else
         puts 'error while uploading'
