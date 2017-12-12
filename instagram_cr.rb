@@ -1,8 +1,22 @@
 #!/usr/bin/env ruby
 require 'selenium-webdriver'
+require 'selenium/webdriver/common/error'
 
 img = ARGV[0]
 caption = ARGV[1]
+
+def find_element_or_wait d, xp, s = (0.3..1)
+  e = nil
+  while not e
+    begin
+      e = d.find_element(:xpath, xp)
+    rescue Selenium::WebDriver::Error::NoSuchElementError => er
+      sleep 0.3
+    end
+  end
+  sleep rand(s)
+  e
+end
 
 args = [
 '--window-size=240,580',
@@ -15,40 +29,33 @@ driver = Selenium::WebDriver.for(:chrome, options: options)
 
 driver.get('https://instagram.com')
 
-sleep 3
 if ARGV[2] == '-d'
   $stdin.gets
   driver.quit
   exit
 end
 
-img_btn = driver.find_element(:xpath, '//*[@id="react-root"]/section/nav[2]/div/div/div[2]/div/div/div[3]')
-form = driver.find_element(:xpath, '//*[@id="react-root"]/section/nav[2]/div/div/form/input')
+sleep 3
+img_btn = find_element_or_wait(driver, '//*[@id="react-root"]/section/nav[2]/div/div/div[2]/div/div/div[3]', 0)
+form = find_element_or_wait(driver, '//*[@id="react-root"]/section/nav[2]/div/div/form/input', 0)
 
 img_btn.click
 form.send_keys(File.absolute_path img)
 
-sleep 0.3
-
-scale_btn = driver.find_element(:xpath, '//*[@id="react-root"]/div/div[2]/div[2]/div/div/div/button[1]')
+scale_btn = find_element_or_wait(driver, '//*[@id="react-root"]/div/div[2]/div[2]/div/div/div/button[1]', (1.5..2))
 scale_btn.click
 
-sleep 0.1
-
-next_btn = driver.find_element(:xpath, '//*[@id="react-root"]/div/div[1]/header/div[2]/button')
+next_btn = find_element_or_wait(driver, '//*[@id="react-root"]/div/div[1]/header/div[2]/button')
 next_btn.click
 
-sleep 3
-
-tχt_area = driver.find_element(:xpath, '//*[@id="react-root"]/div/div[2]/section[1]/div/textarea')
+tχt_area = find_element_or_wait(driver, '//*[@id="react-root"]/div/div[2]/section[1]/div/textarea', (1..1.5))
 tχt_area.click
 tχt_area.send_keys(caption)
 
-sleep 0.5
-
-share_btn = driver.find_element(:xpath, '//*[@id="react-root"]/div/div[1]/header/div[2]/button')
+share_btn = find_element_or_wait(driver, '//*[@id="react-root"]/div/div[1]/header/div[2]/button')
 share_btn.click
 
-sleep 2
+img_btn = find_element_or_wait(driver, '//*[@id="react-root"]/section/nav[2]/div/div/div[2]/div/div/div[3]', 0)
+sleep rand(0.3..1)
 
 driver.quit
