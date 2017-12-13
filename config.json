@@ -5,10 +5,13 @@
 
     "twitter_login" : "twitter_login.json",
     "twitter_text" : [
-        "#fete #tgsindelfingen #gds1",
-        "von der Fotobox auf der #tgfete",
-        "#160JahreGDS #48JahreTG",
-        "#Kokoš"
+        "#großeTGfete2017 #tgsindelfingen #gds1",
+        "Von der FotoBox auf der #großeTGfete2017",
+        "#160JahreGDS #48JahreTG #großeTGfete2017",
+        "#Kokoš #großeTGfete2017",
+        "#dasTG mit #derFete #großeTGfete2017",
+        "Unser Abend auf der #großeTGfete2017",
+        "Exler treffen auf TGler #großeTGfete2017"
     ],
 
     "serial_port" : "/dev/ttyUSB0",
