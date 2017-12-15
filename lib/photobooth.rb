@@ -62,9 +62,10 @@ class Photobooth
       @ui.display_text (Config[:countdown].to_i - i)
       sleep 1
     end
-    @ui.clear_text
+    @ui.display_text "0"
     @no_preview = true
     image = take_img
+    @ui.clear_text
     @ui.show_img image
     text = Config[:twitter_text][rand Config[:twitter_text].size]
     image.save_and_mark_to_tweet text
@@ -78,8 +79,9 @@ class Photobooth
       @ui.display_text (Config[:countdown].to_i - i)
       sleep 1
     end
-    @ui.clear_text
+    @ui.display_text "0"
     images << take_img
+    @ui.clear_text
     @ui.show_img_grid images[0], 0
     3.times do |i|
       sleep Config[:image_delay].to_f
