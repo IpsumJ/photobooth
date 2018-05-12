@@ -57,18 +57,18 @@ def load_file_list
       files[index] = {
         :name => file,
         :file => File.join(data_dir, file),
-        :to_upload => !uploaded.include?(index)
+      #  :to_upload => !uploaded.include?(index)
       }
       files[index][:tweet_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweet"))
       files[index][:small_file] = File.join(data_dir, file.sub(/\.jpg$/, "_small.jpg"))
       files[index][:tweeted_file] = File.join(data_dir, file.sub(/\.jpg$/, ".tweeted"))
-      files[index][:instagramed_file] = File.join(data_dir, file.sub(/\.jpg$/, ".instagramed"))
+      #files[index][:instagramed_file] = File.join(data_dir, file.sub(/\.jpg$/, ".instagramed"))
       files[index][:to_tweet] = (
         !File.exist?(files[index][:tweeted_file]) &&
         File.exist?(files[index][:tweet_file]))
-      files[index][:to_instagram] = (
-        !File.exist?(files[index][:instagramed_file]) &&
-        File.exist?(files[index][:tweet_file]))
+      #files[index][:to_instagram] = (
+      #  !File.exist?(files[index][:instagramed_file]) &&
+      #  File.exist?(files[index][:tweet_file]))
     end
   end
   files
