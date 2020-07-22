@@ -14,7 +14,6 @@
         "Exler treffen auf TGler #großeTGfete2017"
     ],
 
-    "serial_port" : "/dev/ttyUSB0",
     "auto_camera" : false,
     "countdown" : 5,
     "image_delay" : 2,
